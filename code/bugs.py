@@ -1,0 +1,7 @@
+num1 = input()
+num1 = num1.strip('"')
+num1_int = int(num1)
+num2 = input()
+num2 = num2.strip('"')
+num2_int = int(num2)
+print('"'+str(num1_int*num2_int)+'"')

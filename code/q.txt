@@ -1,0 +1,160 @@
+#include <iostream>
+using namespace std;
+int N;  // 所有的方块数量
+int n1; // 全局变量边长
+
+class A // 每一个方块是一个类
+{
+public:
+    int x;   // 方块的横坐标
+    int y;   // 方块的纵坐标
+    int key; // 方块中填的值
+};
+
+void fun(A a[], int n, int x1, int y1, int x2, int y2, int v)
+{
+    // x1,y1递归部分的起始坐标
+    // x2,y2递归部分的终止坐标
+    int m = 0;                  // 判断不需要覆盖的那一块在哪一部分，左上m=1,右上m=2,左下m=3,右下m=4,
+    for (int i = 0; i < N; i++) // 在递归的部分找到不需要铺的那一块在哪一部分，或者已经铺好的在哪一部分
+    {
+        if (a[i].x >= x1 && a[i].x <= x2 && a[i].y >= y1 && a[i].y <= y2)
+        {
+            if (a[i].key != 0)
+            {
+                if (a[i].x < n / 2 + x1) // 在左边部分
+                {
+                    if (a[i].y < n / 2 + y1) // 左上
+                        m = 1;
+                    else // 左下
+                        m = 3;
+                }
+                else // 在右边部分
+                {
+                    if (a[i].y < n / 2 + y1) // 右上
+                        m = 2;
+                    else // 右下
+                        m = 4;
+                }
+                break;
+            }
+        }
+    }
+    // 找到在哪一部分之后，对大部分平均分成四小部分。
+    // 然后把大部分中间的那四块，除了已经找到的那一部分，
+    // 剩下的三部分都填充上值v，v是递归传递的参数。
+    // 对应上图的第3张棋盘图，然后每次以此类推。
+    if (m == 1) // 不需要铺的那一块在第一部分的情况
+    {
+        for (int i = 0; i < N; i++)
+        {
+            if (a[i].x == n / 2 + x1 && a[i].y == n / 2 - 1 + y1)
+            {
+                a[i].key = v;
+            }
+            if (a[i].x == n / 2 - 1 + x1 && a[i].y == n / 2 + y1)
+            {
+                a[i].key = v;
+            }
+            if (a[i].x == n / 2 + x1 && a[i].y == n / 2 + y1)
+            {
+                a[i].key = v;
+            }
+        }
+    }
+    if (m == 2) // 不需要铺的那一块在第二部分的情况
+    {
+        for (int i = 0; i < N; i++)
+        {
+            if (a[i].x == n / 2 - 1 + x1 && a[i].y == n / 2 - 1 + y1)
+            {
+                a[i].key = v;
+            }
+            if (a[i].x == n / 2 - 1 + x1 && a[i].y == n / 2 + y1)
+            {
+                a[i].key = v;
+            }
+            if (a[i].x == n / 2 + x1 && a[i].y == n / 2 + y1)
+            {
+                a[i].key = v;
+            }
+        }
+    }
+    if (m == 3) // 不需要铺的那一块在第三部分的情况
+    {
+        for (int i = 0; i < N; i++)
+        {
+            if (a[i].x == n / 2 - 1 + x1 && a[i].y == n / 2 - 1 + y1)
+            {
+                a[i].key = v;
+            }
+            if (a[i].x == n / 2 + x1 && a[i].y == n / 2 - 1 + y1)
+            {
+                a[i].key = v;
+            }
+            if (a[i].x == n / 2 + x1 && a[i].y == n / 2 + y1)
+            {
+                a[i].key = v;
+            }
+        }
+    }
+    if (m == 4) // 不需要铺的那一块在第四部分的情况
+    {
+        for (int i = 0; i < N; i++)
+        {
+            if (a[i].x == n / 2 - 1 + x1 && a[i].y == n / 2 - 1 + y1)
+            {
+                a[i].key = v;
+            }
+            if (a[i].x == n / 2 + x1 && a[i].y == n / 2 - 1 + y1)
+            {
+                a[i].key = v;
+            }
+            if (a[i].x == n / 2 - 1 + x1 && a[i].y == n / 2 + y1)
+            {
+                a[i].key = v;
+            }
+        }
+    }
+
+    if (n != 2) // 当n的规模不是2，就把当前规模分为四部分，进入下面的递归
+    {
+        v++;
+        n = n / 2;
+        fun(a, n, x1, y1, x1 + n - 1, y1 + n - 1, v);                 // 左上部分的递归
+        fun(a, n, x1 + n, y1, x1 + n + n - 1, y1 + n - 1, v);         // 右上部分的递归
+        fun(a, n, x1, y1 + n, x1 + n - 1, y1 + n + n - 1, v);         // 左下部分的递归
+        fun(a, n, x1 + n, y1 + n, x1 + n + n - 1, y1 + n + n - 1, v); // 右下部分的递归
+    }
+}
+int main()
+{
+    int n;
+    int v = 1; // 方块第几次递归被铺上时的值
+    cout << "请输入方块的边长n(其中n=2^k)：  ";
+    cin >> n;
+    n1 = n;
+    N = n * n;
+    A a[n * n];
+    int k = 0;
+    for (int i = 0; i < n; i++) // 棋盘的初始化，对应上面的第一张棋盘图
+    {
+        for (int j = 0; j < n; j++)
+        {
+            a[k].x = i;
+            a[k].y = j;
+            a[k].key = 0;
+            k++;
+        }
+    }
+    a[0].key = -1; // 可以任取一块置为-1，表示这一块不需要铺
+    // 这里选取的是第一块，对应上面的第二张棋盘图
+    fun(a, n, a[0].x, a[0].y, a[N].x, a[N].y, v);
+    for (int i = 0; i < N; i++) // 输出部分
+    {
+        cout << a[i].key << "\t";
+        if ((i + 1) % n == 0)
+            cout << endl;
+    }
+    return 0;
+}
